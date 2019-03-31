@@ -1,0 +1,159 @@
+;******************************************************************************
+; project name:    CPUID
+; target platform: KolibriOS, x86 (IA-32), x86-64 achitectures
+; compability:     CPUID works in MS Windows by means of emulator KlbrInWin from Diamond  (http://diamondz.land.ru)
+; compiler:        flat assembler 1.67.21
+; version:         2.21
+; last update:     18th May 2007
+; maintained by:   Sergey Kuzmin aka Wildwest
+; e-mail:          kuzmin_serg@list.ru
+; site:            http://coolthemes.narod.ru/files.html
+;******************************************************************************
+; Summary:
+;        supported vendors  - Intel, AMD, VIA, Cyrix, IDT (Centaur),Transmeta
+;        displayed features - CPU frequency;
+;                             Internal Name;
+;                             Multiplier and System Clock frequency;
+;                             Standard and Extended Features;
+;                             CPU signature (family, model,stepping);
+;                             Codename;
+;                             L1, L2 and L3 Caches;
+;                             Technology;
+;                             CPU Vendor;
+;                             Type and Brand ID;
+;                             Logo for Vendors;
+;                             calculation of PR-rating for AMD AthlonXP;
+;                             Amout of RAM (available and total)
+;                             Highest input values for standard and extended calls
+;        performed tests    - Performance test (RSA encoding)
+;******************************************************************************
+;"To do" plans:
+; actual use of Brand ID for description of Intel's CPU, i.e. Celeron/Pentium separation;
+; remove support of Cyrix and early Centaur (IDT)  - they are too old, rare and non-standard;
+; Sempron detection - probably they supports Brand-ID;
+; update caches descriptors for intel Core 1/2
+; quantity of logical CPU/cores - requires APIC ID analysis
+; newest AMD/Intel codename detection
+;******************************************************************************
+;HISTORY:
+;3.0: CPUID   18/05/2007 (not finished)
+;Authors:    Sergey Kuzmin aka Wildwest <kuzmin_serg@list.ru>
+;Features:  
+;          (+)  fixed typo, which makes selection of incorrect codename for AMD F8x CPU's; 
+;Known issues: Sempron marked as AthlonXP
+;              second window doesn't closed when you close main window
+;-----------------------------------------------------------------------------
+;2.2: CPUID   01/05/2007
+;Authors:    Sergey Kuzmin aka Wildwest <kuzmin_serg@list.ru>
+;            Iliya Mikhailov aka Ghost  <Ghost.nsk@gmail.com>
+;            /^S0rG^\ <s0rg@ngs.ru> 
+;            Pavel Rymovskiy aka Heavyiron <Heavyiron@pisem.net>
+;            Leency <Leency@email.ua>
+;Features:  
+;          (+)  creative work by Leency - logos now much better and they take less size; 
+;          (+)  changes from Heavyiron: client-relative drawing, title with function 0. It means the end of compatibility with MenuetOS!
+;          (+)  real-time RAM monitoring (previous versions showed changed amount of available RAM only at redraw event or CPUID window activation); 
+;          (+)  fixed address of LAHF feature, added detection of CMPL, SVM, MOVCR8 technologies for AMD; 
+;          (+)  fixed L2 cache size detection for VIA (they changed format from 8 bits to 16 bits several years ago); 
+;          (+)  more macroses for Interface and Threads (from Menuett.inc written by /^S0rG^\, 2002), sources separated into several include files;
+;          (++) more info about caches for VIA and Transmeta;
+;          (+)  added detection of DCA, SSSE3, VMX technologies for Intel;
+;          (+)  updated multiplier detection for AMD and Intel (thanks a lot to Ghost);
+;Known issues: Sempron marked as AthlonXP
+;              second window doesn't closed when you close main window
+;-----------------------------------------------------------------------------
+;2.1: CPUID   10/01/2007
+;Author:    Sergey Kuzmin aka Wildwest <kuzmin_serg@list.ru>
+;Features:         
+;          (++) more info about caches for AMD and Intel
+;          (+)  redesign
+;          (+)  fixes for names of some extended features
+;          (+)  fixed missing technology for some AMD64 cpu's
+;          (+)  detection of dual-core AMD Opteron, but I came to conclusion that detection of AMD Fxxh CPU's should be changed (don't know how yet) 
+;          (+)  new caches for Intel
+;          (+)  fixed Celeron detection based on L2 cache size for newest Intel CPU (there are Celeron models with 512 Kb);
+;          (+)  CPUID now display System Clock with accuracy 0.01 MHz;
+;          (+)  new logo for Intel (they changed it some time ago);
+;Known issues: Sempron marked as AthlonXP
+;              second window doesn't closed when you close main window
+;-----------------------------------------------------------------------------
+;2.0: CPUID   31/10/2006
+;Authors:   Sergey Kuzmin aka Wildwest <kuzmin_serg@list.ru>
+;           Eugeniy Grechnikov aka Diamond <diamondz@land.ru>
+;           Iliya Mikhailov aka Ghost  <Ghost.nsk@gmail.com>
+;Features:
+;          (+)  detection of Brand ID of AMD CPU's (Opteron etc - not finished)
+;          (+)  detection of Extended family and Model of AMD CPU's
+;          (+)  interface+(redesign)
+;          (+)  calculation of System Clock
+;          (++) added multiplier detection for AMD and Intel (thanks a lot to Ghost)
+;          (+)  optimization of GIF decoder, code cleanup and bugfix by Diamond;
+;          (+)  fixed bug with MMX+ detection for Cyrix CPU (in second window;
+;               it was properly recognized in main window);
+;          (+)  we show appropiate message in second window if Extended Features
+;              ($8000_000x) aren't available;
+;          (+)  we mark unknown CPU models as "Next generation CPU";
+;Known issues: Sempron marked as AthlonXP
+;              second window doesn't closed when you close main window
+;-----------------------------------------------------------------------------
+;1.1: CPUID   17/03/2006
+;Author:    Sergey Kuzmin aka Wildwest <kuzmin_serg@list.ru>
+;Features:
+;          (+)  performance test now runs after click at "Press for more" button => we start app without test, i.e.
+;               immediately, but application can be unstable during multiple switching between windows(need testing)
+;          (++) added detection of total and available amount of RAM (would work only in KolibriOS)
+;          (++) added detection of extended family and model (not shown, but if you want...);
+;          (++) added detection of effective family and model;
+;          (+)  more codenames: Intel Tejas, Presler, Yonah, Conroe;
+;          (+)  more codenames: AMD Toledo;
+;          (+)  interface+(redesign).
+;Bugs:  probably some non-critical graphical issues
+;Known issues: Sempron is not supported (marked as AthlonXP)
+;-----------------------------------------------------------------------------
+;1.0: CPUID   26/09/2005
+;Authors:   Sergey Kuzmin aka Wildwest <kuzmin_serg@list.ru>
+;           Marat Zakiyanov aka Mario79 <mario79@bk.ru>
+;           Andrey Halyavin aka halyavin <halyavin@land.ru>
+;Features:
+;          (+) fixed bug, when processor doesn't support extented features and program don't report 'no' in such case
+;          (+) fixed bug in CPU Type detection
+;          (+) fixed bug, when program crashes on AMD AthlonXP when after click on 'Press for more' button
+;              you click on 'Choose FSB' button;
+;          (+) added output of highest standard and extended calls
+;          (+) Extended Features(phase 1 - big part of AMD/Intel specific EF)
+;          (+) reworked P-rating calculation for AMD AthlonXP ->
+;              now one program for 266, 333, 400 MHz FSB
+;              (but unstable - see Bugs section)
+;          (+) support for Intel F5x, renamed C3(Esther) to C7(Esther)
+;          (+) more codenames
+;             (Intel: new Prescott's model; Dothan;  VIA: Esther;
+;              AMD: Newcastle, Paris, Winchester, San Diego, Venice, Palermo)
+;          (+) performance test (RSA encoding, fixed-point arithmetics)
+;              by Andrey Halyavin
+;          (+) interface+(thanks to Mario79 for additional window
+;              and to me for nice button)
+;Bugs:  probably some non-critical graphical issues
+;Known issues: Sempron is not supported (marked as AthlonXP)
+;-----------------------------------------------------------------------------
+;0.9: CPUID   24/01/2005
+;Authors:   Sergey Kuzmin aka Wildwest <kuzmin_serg@list.ru>
+;           Madis Kalme aka Madis731 <madis.kalme@mail.ee>
+;           Jeffrey Amelynck aka Profkid <the_adams_familie@hotmail.com>
+;Features:
+;          (+) deleting leading whitespaces in Intel P4's internal name
+;              by Madis Kalme
+;          (+) all standard features
+;          (+) more codenames (Transmeta series)
+;          (+) caches for Cyrix
+;          (+) Brand ID for Intel
+;          (+) detect L3 cache for Intel
+;          (+) detect Xeon (will be improved later, at this moment see Brand)
+;          (+) interface+(redesign and grafical logos for vendors)
+;          (+) MMX+ test for Cyrix
+;          (+) Type for Intel
+;Bugs:     no !!!
+;Known issues: Sempron is not supported (marked as AthlonXP)
+;              caches for IDT is not detected
+;-----------------------------------------------------------------------------
+;early history was removed; download any old version of CPUID and read it, if you want
+;*****************************************************************************

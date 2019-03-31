@@ -1,0 +1,270 @@
+Index: clicks.c--
+===================================================================
+--- clicks.c--	(revision 1017)
++++ clicks.c--	(revision 1005)
+@@ -1,5 +1,5 @@
+ /*
+-Just Clicks v0.76
++Just Clicks v0.75
+ Copyright (C) 2008 Leency
+ Clickomania v0.3
+ Copyright (C) 2005 Александр Мушиков aka Olaf
+@@ -25,30 +25,35 @@
+ }matrix[64];
+ 
+ 
+-void check_n_destroy(byte ID, ID1)
++
++void destroy_button(byte ID)
+ {
+-	IF (matrix[ID1].color == matrix[ID].color) && (matrix[ID1].mark!=1)
++	IF (matrix[ID-8].color == matrix[ID].color) && (matrix[ID-8].mark!=1)
+ 	{
+-		matrix[ID1].mark=1;
+-		destroy_button(ID1);
++		matrix[ID-8].mark=1;
++		destroy_button(ID-8);
+ 	}
+-}
+-
+-
+-void destroy_button(byte ID)
+-{
+-	check_n_destroy(ID, ID-8);
+-	check_n_destroy(ID, ID+8);
+-		IF (ID!=0)&&(ID!=8)&&(ID!=16)&&(ID!=24)&&(ID!=32)&&(ID!=40)&&(ID!=48)&&(ID!=56)
+-	check_n_destroy(ID, ID-1);
+-		IF (ID!=7)&&(ID!=15)&&(ID!=23)&&(ID!=31)&&(ID!=39)&&(ID!=47)&&(ID!=55)&&(ID!=63)
+-	check_n_destroy(ID, ID+1);
+-
++	IF (matrix[ID+8].color == matrix[ID].color) && (matrix[ID+8].mark!=1)
++	{
++		matrix[ID+8].mark=1;
++		destroy_button(ID+8);
++	}
++	IF (ID!=0)&&(ID!=8)&&(ID!=16)&&(ID!=24)&&(ID!=32)&&(ID!=40)&&(ID!=48)&&(ID!=56)
++    && (matrix[ID-1].color == matrix[ID].color) && (matrix[ID-1].mark!=1)
++	{
++		matrix[ID-1].mark=1;
++		destroy_button(ID-1);
++    }
++	IF (ID!=7)&&(ID!=15)&&(ID!=23)&&(ID!=31)&&(ID!=39)&&(ID!=47)&&(ID!=55)&&(ID!=63)
++	&& (matrix[ID+1].color == matrix[ID].color) && (matrix[ID+1].mark!=1)
++	{
++		matrix[ID+1].mark=1;
++		destroy_button(ID+1);
++	}
+ 	IF (matrix[ID].x<XX) {XX=matrix[ID].x;  IF (matrix[ID].y>YY) YY=matrix[ID].y;}
+ 	IF (matrix[ID].y>YY) {YY=matrix[ID].y;  IF (matrix[ID].x<XX) XX=matrix[ID].x;}
+ }
+ 
+-
+ void shift_bars(byte AA, BB)
+ byte id_curr,id_next,bz;
+ {
+@@ -123,22 +128,22 @@
+ 			matrix[num].y=i;
+ 			IF (matrix[num].mark==0)
+ 				{
+-				DefineButton(j*21,y-22, 20, 20, num+BT_HIDE, 0);
+-				PutImage(matrix[num].color-1*1323+#img,21,21,j*21,y-22);
+-				}	ELSE DrawBar(j*21,y-22,21,21, 0xB2B4BF);
++				DefineButton(j*21+5,y-22, 20, 20, num+BT_HIDE, 0);
++				PutImage(matrix[num].color-1*1323+#img,21,21,j*21+5,y-22);
++				}	ELSE DrawBar(j*21+5,y-22,21,21, 0xB2B4BF);
+ 			num++;
+ 		}
+ 		y=y+21;
+ 	}
+-	DrawBar(90,178,71,8,0xE4DFE1);
+-	IF (check_for_end()==1) WriteText(90,178,0x80,0,"Результат:",10);
+-	ELSE WriteText(96,178,0x80,0,"Осталось:",10);
++	DrawBar(95,178,71,8,0xE4DFE1);
++	IF (check_for_end()==1) WriteText(95,178,0x80,0,"Результат:",10);
++	ELSE WriteText(101,178,0x80,0,"Осталось:",10);
+ 	FOR (i=0;i<8;i++) FOR (j=0;j<8;j++) IF (matrix[j*8+i].mark==0) count_blocks++;
+-	WriteNumber(150,178,0x80,0,count_blocks);
++	WriteText(155,178,0x80,0,IntToStr(count_blocks),0);
+ 	//
+ 	if (check_for_end()==1) && (count_blocks<8)
+ 	{
+-		DrawFlatButton(21,42,125,62,0,0xE4DFE1,"");
++		DrawFlatButton(26,42,125,62,0,0xE4DFE1,"");
+ 		IF (count_blocks==0) copystr(" Лучше всех!", #temp);  
+ 		IF (count_blocks==1) copystr("  Прекрасно", #temp);
+ 		IF (count_blocks==2) copystr("Очень хорошо!", #temp);
+@@ -147,48 +152,46 @@
+ 			copystr("   Неплохо", #temp);
+ 			count_blocks=3;
+ 		}
+-		PutImage(count_blocks*42*37*3+#cups,42,37,63,48);
+-		WriteText(46,91,0x80,0x0,#temp,0);
++		PutImage(count_blocks*42*37*3+#cups,42,37,68,48);
++		WriteText(51,91,0x80,0x0,#temp,0);
+ 	}
+ }
+ 
+ 
+ void main()
+-{	byte id, skin_width;
++{	byte id;
+ 	randomize();
+ 	ReDraw_Blocks(1);
+ 	loop()
+ 	{
+ 		switch(WaitEvent())
+ 		{
+-			CASE evKey:
+-				IF (GetKey()==051) ReDraw_Blocks(1); //New game
+-				break;
++			CASE evKey: IF (GetKey()==051) ReDraw_Blocks(1); break; //New game
+ 			CASE evButton:
+ 				id=GetButtonID();
+ 				IF (id==255) ExitProcess();
+-				IF (id==254) ReDraw_Blocks(1); //New game
+-				IF (id<65) //Color Button
+-				{ 	
+-     				destroy_button(id);
+-					IF (XX!=9)
+-					{
+-						shift_bars(XX,YY);
+-						IF (YY==7) {move_it();move_it();}
+-						XX=9;
+-						YY=0;
+-						ReDraw_Blocks(0);
+-					}
+-				}    
+-				break;
++				IF (id==254) {ReDraw_Blocks(1); break;} //New game
++				IF (id<65) IF (check_for_end()<>1)
++					{ 	//if Button
++     					destroy_button(id);
++						IF (XX!=9)
++						{
++							shift_bars(XX,YY);
++							IF (YY == 7) {move_it();move_it();}
++							XX=9;
++							YY=0;
++							ReDraw_Blocks(0);
++						}
++					 	break;
++					}    
+ 			case evReDraw:
+ 				WindowRedrawStatus(1);
+ 				skin_width = GetSkinWidth();
+-				DefineAndDrawWindow(400,276,177,201+skin_width,0x74,0x10B2B4BF,0,0,"Just Clicks v0.76");
+-				DefineButton(150,2-skin_width,18,18,255+BT_HIDE+BT_NOFRAME,0x0866CC00);
+-				DrawBar(0,168,168,29,0xE4DFE1);
++				DefineAndDrawWindow(400,276,177,201+skin_width,0x44,0x10B2B4BF,0,0,"Just Clicks v0.75");
++				//DefineButton(155,2-skin_width,18,18,255+BT_HIDE+BT_NOFRAME,0x0866CC00);
++				DrawBar(5,168,168,29,0xE4DFE1);
+ 				//DrawFlatButton(9,172,84,19,254,0xE4DFE1,"New game (F2)");
+-				DrawFlatButton(4,172,80,19,254,0xE4DFE1,"Заново (F2)");
++				DrawFlatButton(9,172,80,19,254,0xE4DFE1,"Заново (F2)");
+ 				ReDraw_Blocks(0);
+ 				WindowRedrawStatus(2);
+ 		}
+Index: lib/kolibri.h--
+===================================================================
+--- lib/kolibri.h--	(revision 1017)
++++ lib/kolibri.h--	(revision 1005)
+@@ -8,10 +8,12 @@
+ dword  x86esp_reg   = 0x0007fff0;
+ dword  I_Param      = 0x0;
+ dword  I_Icon       = 0x0;
++dword  skin_width;
+ 
+ #define evButton  3
+ #define evKey     2
+ #define evReDraw  1
++#define evNet	  8
+ 
+ #define BT_DEL		0x80000000
+ #define BT_HIDE		0x40000000
+@@ -84,14 +86,14 @@
+ {
+  	EAX = 8;
+ 	EBX = x<<16+w;
+-	ECX = y<<16+h;
++	ECX = skin_width+y<<16+h;
+  	$int 0x40
+ }
+ 
+ void WriteText(dword x,y,byte fontType, dword color, EDX, ESI)
+ {
+ 	EAX = 4;
+-	EBX = x<<16+y;
++	EBX = x<<16+skin_width+y;
+ 	ECX = fontType<<24+color;
+ 	$int 0x40;
+ }
+@@ -101,7 +103,7 @@
+ {
+ 	EAX = 13;
+ 	EBX = x<<16+w;
+-	ECX = y<<16+h;
++	ECX = skin_width+y<<16+h;
+  	$int 0x40
+ }
+ 
+@@ -127,11 +129,13 @@
+ }
+ 
+ 
+-void PutImage(dword EBX,w,h,x,y)
++void PutImage(dword buf,w,h,x,y)
+ {
++	EDI=buf;
+ 	EAX = 7;
++	EBX = buf;
+ 	ECX = w<<16+h;
+-	EDX = x<<16+y;
++	EDX = x<<16+y+skin_width;
+ 	$int 0x40
+ }
+ 
+@@ -148,17 +152,31 @@
+ 	$jnz l1
+ }
+ 
+-void WriteNumber(dword x,y,byte fontType, ESI, ECX)
++
++char	buffer[11]="";
++inline fastcall dword IntToStr(dword ESI)
+ {
+-	EAX = 47;
+-	EBX = 2<<16;
+-	/*ecx = 0
+-	while(eax>10)
+-	{
+-		ecx ++;
+-		eax /= 10;
+-	}*/
+-	EDX = x<<16+y;
+-	ESI = fontType<<24+ESI;
+-	$int 0x40;
+-}  
++     $mov     edi, #buffer
++     $mov     ecx, 10
++     $test     esi, esi
++     $jns     f1
++     $mov     al, '-'
++     $stosb
++     $neg     esi
++f1:
++     $mov     eax, esi
++     $push     -'0'
++f2:
++     $xor     edx, edx
++     $div     ecx
++     $push     edx
++     $test     eax, eax
++     $jnz     f2
++f3:
++     $pop     eax
++     $add     al, '0'
++     $stosb
++     $jnz     f3
++     $mov     eax, #buffer
++     $ret
++}

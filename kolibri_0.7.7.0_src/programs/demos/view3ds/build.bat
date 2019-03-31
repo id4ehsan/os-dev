@@ -1,0 +1,1 @@
+fasm view3ds.asm view3ds

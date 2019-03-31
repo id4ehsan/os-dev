@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lzmapack", "lzmapack.vcproj", "{E45D3C93-C939-4F0E-8654-8B04F6FF3276}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lzmatest", "lzmatest\lzmatest.vcproj", "{AF9C45BB-91A3-495A-A0D4-6EF8154F6B10}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E45D3C93-C939-4F0E-8654-8B04F6FF3276} = {E45D3C93-C939-4F0E-8654-8B04F6FF3276}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E45D3C93-C939-4F0E-8654-8B04F6FF3276}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E45D3C93-C939-4F0E-8654-8B04F6FF3276}.Debug|Win32.Build.0 = Debug|Win32
+		{E45D3C93-C939-4F0E-8654-8B04F6FF3276}.Release|Win32.ActiveCfg = Release|Win32
+		{E45D3C93-C939-4F0E-8654-8B04F6FF3276}.Release|Win32.Build.0 = Release|Win32
+		{AF9C45BB-91A3-495A-A0D4-6EF8154F6B10}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AF9C45BB-91A3-495A-A0D4-6EF8154F6B10}.Debug|Win32.Build.0 = Debug|Win32
+		{AF9C45BB-91A3-495A-A0D4-6EF8154F6B10}.Release|Win32.ActiveCfg = Release|Win32
+		{AF9C45BB-91A3-495A-A0D4-6EF8154F6B10}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

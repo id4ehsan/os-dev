@@ -1,0 +1,1 @@
+fasm mtldr.asm ..\mtldr
